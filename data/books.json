@@ -1,0 +1,398 @@
+[
+  {
+    "id": 1,
+    "kor": "창세기",
+    "eng": "Genesis",
+    "chapters": 50
+  },
+  {
+    "id": 2,
+    "kor": "출애굽기",
+    "eng": "Exodus",
+    "chapters": 40
+  },
+  {
+    "id": 3,
+    "kor": "레위기",
+    "eng": "Leviticus",
+    "chapters": 27
+  },
+  {
+    "id": 4,
+    "kor": "민수기",
+    "eng": "Numbers",
+    "chapters": 36
+  },
+  {
+    "id": 5,
+    "kor": "신명기",
+    "eng": "Deuteronomy",
+    "chapters": 34
+  },
+  {
+    "id": 6,
+    "kor": "여호수아",
+    "eng": "Joshua",
+    "chapters": 24
+  },
+  {
+    "id": 7,
+    "kor": "사사기",
+    "eng": "Judges",
+    "chapters": 20
+  },
+  {
+    "id": 8,
+    "kor": "룻기",
+    "eng": "Ruth",
+    "chapters": 4
+  },
+  {
+    "id": 9,
+    "kor": "사무엘상",
+    "eng": "1 Samuel",
+    "chapters": 31
+  },
+  {
+    "id": 10,
+    "kor": "사무엘하",
+    "eng": "2 Samuel",
+    "chapters": 24
+  },
+  {
+    "id": 11,
+    "kor": "열왕기상",
+    "eng": "1 Kings",
+    "chapters": 22
+  },
+  {
+    "id": 12,
+    "kor": "열왕기하",
+    "eng": "2 Kings",
+    "chapters": 25
+  },
+  {
+    "id": 13,
+    "kor": "역대상",
+    "eng": "1 Chronicles",
+    "chapters": 29
+  },
+  {
+    "id": 14,
+    "kor": "역대하",
+    "eng": "2 Chronicles",
+    "chapters": 36
+  },
+  {
+    "id": 15,
+    "kor": "에스라",
+    "eng": "Ezra",
+    "chapters": 10
+  },
+  {
+    "id": 16,
+    "kor": "느헤미야",
+    "eng": "Nehemiah",
+    "chapters": 13
+  },
+  {
+    "id": 17,
+    "kor": "에스더",
+    "eng": "Esther",
+    "chapters": 10
+  },
+  {
+    "id": 18,
+    "kor": "욥기",
+    "eng": "Job",
+    "chapters": 42
+  },
+  {
+    "id": 19,
+    "kor": "시편",
+    "eng": "Psalms",
+    "chapters": 150
+  },
+  {
+    "id": 20,
+    "kor": "잠언",
+    "eng": "Proverbs",
+    "chapters": 31
+  },
+  {
+    "id": 21,
+    "kor": "전도서",
+    "eng": "Ecclesiastes",
+    "chapters": 12
+  },
+  {
+    "id": 22,
+    "kor": "아가",
+    "eng": "Song of Songs",
+    "chapters": 8
+  },
+  {
+    "id": 23,
+    "kor": "이사야",
+    "eng": "Isaiah",
+    "chapters": 66
+  },
+  {
+    "id": 24,
+    "kor": "예레미야",
+    "eng": "Jeremiah",
+    "chapters": 52
+  },
+  {
+    "id": 25,
+    "kor": "예레미야애가",
+    "eng": "Lamentations",
+    "chapters": 5
+  },
+  {
+    "id": 26,
+    "kor": "에스겔",
+    "eng": "Ezekiel",
+    "chapters": 48
+  },
+  {
+    "id": 27,
+    "kor": "다니엘",
+    "eng": "Daniel",
+    "chapters": 12
+  },
+  {
+    "id": 28,
+    "kor": "호세아",
+    "eng": "Hosea",
+    "chapters": 14
+  },
+  {
+    "id": 29,
+    "kor": "요엘",
+    "eng": "Joel",
+    "chapters": 2
+  },
+  {
+    "id": 30,
+    "kor": "아모스",
+    "eng": "Amos",
+    "chapters": 9
+  },
+  {
+    "id": 31,
+    "kor": "오바댜",
+    "eng": "Obadiah",
+    "chapters": 1
+  },
+  {
+    "id": 32,
+    "kor": "요나",
+    "eng": "Jonah",
+    "chapters": 4
+  },
+  {
+    "id": 33,
+    "kor": "미가",
+    "eng": "Micah",
+    "chapters": 7
+  },
+  {
+    "id": 34,
+    "kor": "나훔",
+    "eng": "Nahum",
+    "chapters": 3
+  },
+  {
+    "id": 35,
+    "kor": "하박국",
+    "eng": "Habakkuk",
+    "chapters": 3
+  },
+  {
+    "id": 36,
+    "kor": "스바냐",
+    "eng": "Zephaniah",
+    "chapters": 3
+  },
+  {
+    "id": 37,
+    "kor": "학개",
+    "eng": "Haggai",
+    "chapters": 2
+  },
+  {
+    "id": 38,
+    "kor": "스가랴",
+    "eng": "Zechariah",
+    "chapters": 14
+  },
+  {
+    "id": 39,
+    "kor": "말라기",
+    "eng": "Malachi",
+    "chapters": 4
+  },
+  {
+    "id": 40,
+    "kor": "마태복음",
+    "eng": "Matthew",
+    "chapters": 28
+  },
+  {
+    "id": 41,
+    "kor": "마가복음",
+    "eng": "Mark",
+    "chapters": 16
+  },
+  {
+    "id": 42,
+    "kor": "누가복음",
+    "eng": "Luke",
+    "chapters": 24
+  },
+  {
+    "id": 43,
+    "kor": "요한복음",
+    "eng": "John",
+    "chapters": 21
+  },
+  {
+    "id": 44,
+    "kor": "사도행전",
+    "eng": "Acts",
+    "chapters": 28
+  },
+  {
+    "id": 45,
+    "kor": "로마서",
+    "eng": "Romans",
+    "chapters": 16
+  },
+  {
+    "id": 46,
+    "kor": "고린도전서",
+    "eng": "1 Corinthians",
+    "chapters": 16
+  },
+  {
+    "id": 47,
+    "kor": "고린도후서",
+    "eng": "2 Corinthians",
+    "chapters": 13
+  },
+  {
+    "id": 48,
+    "kor": "갈라디아서",
+    "eng": "Galatians",
+    "chapters": 6
+  },
+  {
+    "id": 49,
+    "kor": "에베소서",
+    "eng": "Ephesians",
+    "chapters": 6
+  },
+  {
+    "id": 50,
+    "kor": "빌립보서",
+    "eng": "Philippians",
+    "chapters": 4
+  },
+  {
+    "id": 51,
+    "kor": "골로새서",
+    "eng": "Colossians",
+    "chapters": 4
+  },
+  {
+    "id": 52,
+    "kor": "데살로니가전서",
+    "eng": "1 Thessalonians",
+    "chapters": 5
+  },
+  {
+    "id": 53,
+    "kor": "데살로니가후서",
+    "eng": "2 Thessalonians",
+    "chapters": 3
+  },
+  {
+    "id": 54,
+    "kor": "디모데전서",
+    "eng": "1 Timothy",
+    "chapters": 6
+  },
+  {
+    "id": 55,
+    "kor": "디모데후서",
+    "eng": "2 Timothy",
+    "chapters": 4
+  },
+  {
+    "id": 56,
+    "kor": "디도서",
+    "eng": "Titus",
+    "chapters": 3
+  },
+  {
+    "id": 57,
+    "kor": "빌레몬서",
+    "eng": "Philemon",
+    "chapters": 1
+  },
+  {
+    "id": 58,
+    "kor": "히브리서",
+    "eng": "Hebrews",
+    "chapters": 13
+  },
+  {
+    "id": 59,
+    "kor": "야고보서",
+    "eng": "James",
+    "chapters": 5
+  },
+  {
+    "id": 60,
+    "kor": "베드로전서",
+    "eng": "1 Peter",
+    "chapters": 5
+  },
+  {
+    "id": 61,
+    "kor": "베드로후서",
+    "eng": "2 Peter",
+    "chapters": 3
+  },
+  {
+    "id": 62,
+    "kor": "요한일서",
+    "eng": "1 John",
+    "chapters": 5
+  },
+  {
+    "id": 63,
+    "kor": "요한이서",
+    "eng": "2 John",
+    "chapters": 1
+  },
+  {
+    "id": 64,
+    "kor": "요한삼서",
+    "eng": "3 John",
+    "chapters": 1
+  },
+  {
+    "id": 65,
+    "kor": "유다서",
+    "eng": "Jude",
+    "chapters": 1
+  },
+  {
+    "id": 66,
+    "kor": "요한계시록",
+    "eng": "Revelation",
+    "chapters": 22
+  }
+]

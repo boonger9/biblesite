@@ -1,0 +1,862 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#1a3a5c">
+<title>대구우리교회 성경찬송</title>
+<style>
+:root{
+  --bg:#f8f6f0;--surface:#fff;--surface2:#f0ece4;--border:#d4cfc4;
+  --primary:#1a3a5c;--primary-light:#2d6096;--accent:#c8973a;
+  --text:#2c2c2c;--text2:#5a5a5a;--text3:#8a8a8a;
+  --radius:12px;--shadow:0 2px 12px rgba(0,0,0,.1);
+  --font-size:17px;
+}
+[data-theme="dark"]{
+  --bg:#0f1923;--surface:#1a2635;--surface2:#243040;--border:#2a3a4a;
+  --primary:#2d6096;--primary-light:#3a7ab5;--accent:#d4a84a;
+  --text:#e8e4dc;--text2:#a8a4a0;--text3:#68686a;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{font-family:-apple-system,'Malgun Gothic','Apple SD Gothic Neo',sans-serif;
+  background:var(--bg);color:var(--text);min-height:100vh;font-size:var(--font-size)}
+a{color:inherit;text-decoration:none}
+button{cursor:pointer;border:none;background:none;font-family:inherit;color:inherit}
+
+/* ── LOCK SCREEN ── */
+#lockScreen{position:fixed;inset:0;background:var(--primary);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  z-index:9999;padding:40px 24px}
+#lockScreen h1{color:#fff;font-size:26px;font-weight:700;margin-bottom:6px;text-align:center}
+#lockScreen p{color:rgba(255,255,255,.7);font-size:14px;margin-bottom:36px;text-align:center}
+.lock-cross{font-size:52px;margin-bottom:24px;color:rgba(255,255,255,.9)}
+#pwInput{width:100%;max-width:320px;padding:14px 18px;border-radius:10px;
+  border:2px solid rgba(255,255,255,.3);background:rgba(255,255,255,.15);
+  color:#fff;font-size:18px;text-align:center;outline:none;letter-spacing:3px;
+  margin-bottom:12px}
+#pwInput::placeholder{letter-spacing:0;color:rgba(255,255,255,.5)}
+#pwInput:focus{border-color:rgba(255,255,255,.7)}
+#pwBtn{width:100%;max-width:320px;padding:14px;background:var(--accent);
+  color:#fff;font-size:17px;font-weight:600;border-radius:10px}
+#pwError{color:#ff9a9a;font-size:14px;margin-top:8px;min-height:20px}
+
+/* ── MAIN APP ── */
+#app{display:none;flex-direction:column;min-height:100vh}
+
+/* HEADER */
+.header{background:var(--primary);color:#fff;padding:12px 16px;
+  display:flex;align-items:center;justify-content:space-between;
+  position:sticky;top:0;z-index:100;box-shadow:var(--shadow)}
+.header-title{font-size:17px;font-weight:700;letter-spacing:-.3px}
+.header-actions{display:flex;gap:8px;align-items:center}
+.icon-btn{background:rgba(255,255,255,.15);border-radius:8px;padding:7px;
+  display:flex;align-items:center;justify-content:center;min-width:36px;min-height:36px;
+  font-size:16px;color:#fff;transition:background .2s}
+.icon-btn:active{background:rgba(255,255,255,.3)}
+
+/* BOTTOM NAV */
+.bottom-nav{position:fixed;bottom:0;left:0;right:0;
+  background:var(--surface);border-top:1px solid var(--border);
+  display:flex;z-index:100;padding-bottom:env(safe-area-inset-bottom)}
+.nav-btn{flex:1;padding:10px 4px 8px;display:flex;flex-direction:column;
+  align-items:center;gap:3px;font-size:11px;color:var(--text3);transition:color .2s}
+.nav-btn.active{color:var(--primary)}
+.nav-btn .nav-icon{font-size:22px;line-height:1}
+.nav-btn .nav-label{font-size:11px;font-weight:500}
+
+/* PAGE LAYOUT */
+.page{display:none;flex:1;padding-bottom:70px;min-height:calc(100vh - 120px)}
+.page.active{display:block}
+
+/* ── BIBLE PAGE ── */
+.bible-controls{background:var(--surface);border-bottom:1px solid var(--border);
+  padding:10px 14px;display:flex;flex-direction:column;gap:8px;
+  position:sticky;top:54px;z-index:90}
+.trans-tabs{display:flex;gap:6px}
+.trans-btn{padding:6px 14px;border-radius:20px;font-size:13px;font-weight:600;
+  border:2px solid var(--border);background:transparent;color:var(--text2);transition:all .2s}
+.trans-btn.active{background:var(--primary);color:#fff;border-color:var(--primary)}
+.search-row{display:flex;gap:8px}
+.search-input{flex:1;padding:9px 12px;border-radius:8px;border:1px solid var(--border);
+  background:var(--surface2);font-size:14px;color:var(--text);outline:none}
+.search-input:focus{border-color:var(--primary)}
+.search-btn{background:var(--primary);color:#fff;padding:9px 16px;border-radius:8px;font-size:14px}
+
+/* Nav bar (book/chapter/verse) */
+.nav-bar{background:var(--surface2);border-bottom:1px solid var(--border);
+  padding:8px 14px;display:flex;align-items:center;gap:6px;overflow-x:auto;white-space:nowrap}
+.nav-pill{display:inline-flex;align-items:center;gap:4px;padding:5px 12px;
+  border-radius:20px;background:var(--surface);border:1px solid var(--border);
+  font-size:13px;font-weight:600;color:var(--primary);cursor:pointer}
+.nav-pill:active{background:var(--primary);color:#fff}
+.nav-sep{color:var(--text3);font-size:13px}
+.nav-arrow{padding:5px 8px;border-radius:8px;background:var(--surface);
+  border:1px solid var(--border);font-size:16px;color:var(--primary)}
+
+/* Verse display */
+.verse-container{padding:14px 16px}
+.chapter-header{text-align:center;margin-bottom:16px}
+.chapter-header h2{font-size:20px;font-weight:700;color:var(--primary)}
+.chapter-header p{font-size:13px;color:var(--text3);margin-top:2px}
+.verse{padding:8px 0;border-bottom:1px solid var(--border);display:flex;gap:10px;
+  line-height:1.7;cursor:pointer;transition:background .15s}
+.verse:last-child{border-bottom:none}
+.verse:active{background:var(--surface2);margin:0 -14px;padding:8px 14px;border-radius:6px}
+.verse-num{font-size:11px;font-weight:700;color:var(--primary);min-width:22px;
+  padding-top:3px;text-align:right}
+.verse-text{flex:1;line-height:1.75}
+.verse.highlighted{background:rgba(200,151,58,.15);margin:0 -14px;padding:8px 14px;border-radius:6px}
+.copy-toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%);
+  background:var(--primary);color:#fff;padding:10px 20px;border-radius:20px;
+  font-size:13px;opacity:0;transition:opacity .3s;pointer-events:none;z-index:200}
+
+/* Book selector modal */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:300;
+  display:none;align-items:flex-end}
+.modal-overlay.open{display:flex}
+.modal{background:var(--surface);border-radius:16px 16px 0 0;width:100%;
+  max-height:80vh;display:flex;flex-direction:column}
+.modal-header{padding:16px 18px 12px;display:flex;align-items:center;justify-content:space-between;
+  border-bottom:1px solid var(--border)}
+.modal-header h3{font-size:17px;font-weight:700}
+.modal-close{font-size:22px;color:var(--text3);padding:4px}
+.modal-body{overflow-y:auto;flex:1;padding:8px 0}
+.modal-search{padding:10px 14px;border-bottom:1px solid var(--border)}
+.modal-search input{width:100%;padding:9px 12px;border-radius:8px;border:1px solid var(--border);
+  background:var(--surface2);font-size:14px;color:var(--text);outline:none}
+.section-label{padding:8px 16px 4px;font-size:11px;font-weight:700;
+  color:var(--text3);text-transform:uppercase;letter-spacing:.5px}
+.book-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;
+  background:var(--border)}
+.book-item{padding:11px 6px;background:var(--surface);text-align:center;
+  font-size:13px;font-weight:600;color:var(--primary);cursor:pointer}
+.book-item:active{background:var(--primary);color:#fff}
+.chapter-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:6px;padding:12px 14px}
+.chap-item{padding:10px;background:var(--surface2);border-radius:8px;text-align:center;
+  font-size:15px;font-weight:600;color:var(--primary);cursor:pointer;border:1px solid var(--border)}
+.chap-item:active{background:var(--primary);color:#fff}
+
+/* Search results */
+.search-results{padding:0 14px}
+.result-item{padding:12px 0;border-bottom:1px solid var(--border);cursor:pointer}
+.result-ref{font-size:12px;font-weight:700;color:var(--primary);margin-bottom:3px}
+.result-text{font-size:14px;line-height:1.6;color:var(--text)}
+.result-text mark{background:rgba(200,151,58,.3);border-radius:2px}
+.no-results{text-align:center;padding:40px;color:var(--text3);font-size:15px}
+.search-count{padding:10px 14px;font-size:13px;color:var(--text3);background:var(--surface2)}
+
+/* ── HYMN PAGE ── */
+.hymn-controls{background:var(--surface);border-bottom:1px solid var(--border);
+  padding:10px 14px;position:sticky;top:54px;z-index:90;display:flex;flex-direction:column;gap:8px}
+.hymn-search-row{display:flex;gap:8px}
+.hymn-list{padding:0}
+.hymn-list-item{display:flex;align-items:center;padding:13px 16px;
+  border-bottom:1px solid var(--border);cursor:pointer;background:var(--surface)}
+.hymn-list-item:active{background:var(--surface2)}
+.hymn-num{font-size:13px;font-weight:700;color:var(--primary);min-width:36px}
+.hymn-title-text{flex:1;font-size:15px;line-height:1.4}
+.hymn-arrow{color:var(--text3);font-size:16px}
+.hymn-viewer{padding:0}
+.hymn-viewer img{width:100%;display:block}
+.hymn-nav{display:flex;gap:10px;padding:12px 14px;background:var(--surface);
+  border-top:1px solid var(--border);position:sticky;bottom:70px}
+.hymn-nav button{flex:1;padding:11px;border-radius:10px;font-size:15px;font-weight:600;
+  background:var(--primary);color:#fff}
+.hymn-nav button:disabled{background:var(--border);color:var(--text3)}
+
+/* ── BOOKMARK PAGE ── */
+.bookmark-list{padding:14px}
+.empty-state{display:flex;flex-direction:column;align-items:center;
+  padding:60px 20px;color:var(--text3);gap:12px;text-align:center}
+.empty-state .empty-icon{font-size:48px}
+.bm-item{background:var(--surface);border-radius:10px;padding:14px;margin-bottom:10px;
+  border:1px solid var(--border);cursor:pointer;display:flex;align-items:flex-start;gap:10px}
+.bm-item:active{background:var(--surface2)}
+.bm-ref{font-size:12px;font-weight:700;color:var(--primary);margin-bottom:4px}
+.bm-text{font-size:14px;line-height:1.6;color:var(--text);flex:1}
+.bm-del{color:var(--text3);font-size:18px;padding:2px}
+
+/* ── FONT SIZE CONTROL ── */
+.font-bar{display:flex;align-items:center;gap:8px;padding:6px 0}
+.font-bar span{font-size:12px;color:var(--text2)}
+.font-btns{display:flex;gap:4px}
+.font-btn{padding:4px 10px;border-radius:6px;font-size:13px;
+  border:1px solid var(--border);background:var(--surface2);color:var(--text)}
+.font-btn.active{background:var(--primary);color:#fff;border-color:var(--primary)}
+
+/* Loading spinner */
+.loading{display:flex;align-items:center;justify-content:center;
+  padding:60px;flex-direction:column;gap:16px;color:var(--text3)}
+.spinner{width:36px;height:36px;border:3px solid var(--border);
+  border-top-color:var(--primary);border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+</style>
+</head>
+<body>
+
+<!-- ──── LOCK SCREEN ──── -->
+<div id="lockScreen">
+  <div class="lock-cross">✝</div>
+  <h1>대구우리교회</h1>
+  <p>성경찬송가</p>
+  <input type="password" id="pwInput" placeholder="암호를 입력하세요" maxlength="20" autocomplete="off">
+  <button id="pwBtn">입장</button>
+  <div id="pwError"></div>
+</div>
+
+<!-- ──── MAIN APP ──── -->
+<div id="app">
+
+  <!-- HEADER -->
+  <div class="header">
+    <span class="header-title" id="headerTitle">📖 성경</span>
+    <div class="header-actions">
+      <button class="icon-btn" id="bookmarkToggleBtn" title="즐겨찾기">🔖</button>
+      <button class="icon-btn" id="themeBtn" title="다크모드">🌙</button>
+    </div>
+  </div>
+
+  <!-- BIBLE PAGE -->
+  <div class="page active" id="biblePage">
+    <div class="bible-controls">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <div class="trans-tabs">
+          <button class="trans-btn active" data-t="nkrv">개역개정</button>
+          <button class="trans-btn" data-t="hrv">개역한글</button>
+          <button class="trans-btn" data-t="niv">NIV</button>
+        </div>
+        <div class="font-bar">
+          <span>가</span>
+          <div class="font-btns">
+            <button class="font-btn" data-fs="small">小</button>
+            <button class="font-btn active" data-fs="medium">中</button>
+            <button class="font-btn" data-fs="large">大</button>
+            <button class="font-btn" data-fs="xlarge">特</button>
+          </div>
+        </div>
+      </div>
+      <div class="search-row">
+        <input class="search-input" id="bibleSearchInput" placeholder="🔍 단어 검색 (예: 믿음, 사랑)">
+        <button class="search-btn" id="bibleSearchBtn">검색</button>
+      </div>
+    </div>
+
+    <div class="nav-bar" id="bibleNavBar">
+      <button class="nav-pill" id="bookSelectBtn">📚 성경책 선택</button>
+      <span class="nav-sep">›</span>
+      <span id="currentBookLabel" style="font-size:13px;font-weight:600;color:var(--text2)">요한복음</span>
+      <span class="nav-sep">›</span>
+      <button class="nav-pill" id="chapterSelectBtn">3장</button>
+      <button class="nav-arrow" id="prevChapBtn">‹</button>
+      <button class="nav-arrow" id="nextChapBtn">›</button>
+    </div>
+
+    <div id="bibleContent">
+      <div class="loading"><div class="spinner"></div><span>성경 로딩 중...</span></div>
+    </div>
+  </div>
+
+  <!-- HYMN PAGE -->
+  <div class="page" id="hymnPage">
+    <div class="hymn-controls">
+      <div class="hymn-search-row">
+        <input class="search-input" id="hymnSearchInput" placeholder="🔍 번호 또는 제목 검색">
+        <button class="search-btn" id="hymnSearchBtn">검색</button>
+      </div>
+    </div>
+    <div id="hymnContent"></div>
+  </div>
+
+  <!-- BOOKMARK PAGE -->
+  <div class="page" id="bookmarkPage">
+    <div class="bookmark-list" id="bookmarkList"></div>
+  </div>
+
+  <!-- BOTTOM NAV -->
+  <nav class="bottom-nav">
+    <button class="nav-btn active" data-page="biblePage">
+      <span class="nav-icon">📖</span><span class="nav-label">성경</span>
+    </button>
+    <button class="nav-btn" data-page="hymnPage">
+      <span class="nav-icon">🎵</span><span class="nav-label">찬송가</span>
+    </button>
+    <button class="nav-btn" data-page="bookmarkPage">
+      <span class="nav-icon">🔖</span><span class="nav-label">즐겨찾기</span>
+    </button>
+  </nav>
+
+</div>
+
+<!-- MODALS -->
+<div class="modal-overlay" id="bookModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>성경책 선택</h3>
+      <button class="modal-close" id="closeBookModal">✕</button>
+    </div>
+    <div class="modal-search">
+      <input id="bookSearch" placeholder="책 이름 검색..." class="search-input" style="width:100%">
+    </div>
+    <div class="modal-body" id="bookModalBody"></div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="chapterModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 id="chapterModalTitle">장 선택</h3>
+      <button class="modal-close" id="closeChapterModal">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="chapter-grid" id="chapterGrid"></div>
+    </div>
+  </div>
+</div>
+
+<div class="copy-toast" id="copyToast">📋 복사했습니다</div>
+
+<!-- DATA & LOGIC -->
+<script src="data/hymns.js"></script>
+<script>
+// ─── CONFIG ───
+const PASSWORD = 'woori2024'; // ← 여기서 암호 변경
+
+// ─── BIBLE BOOK NAMES ───
+const BOOKS=[
+  {id:1,kor:'창세기',eng:'Genesis',chaps:50},{id:2,kor:'출애굽기',eng:'Exodus',chaps:40},
+  {id:3,kor:'레위기',eng:'Leviticus',chaps:27},{id:4,kor:'민수기',eng:'Numbers',chaps:36},
+  {id:5,kor:'신명기',eng:'Deuteronomy',chaps:34},{id:6,kor:'여호수아',eng:'Joshua',chaps:24},
+  {id:7,kor:'사사기',eng:'Judges',chaps:21},{id:8,kor:'룻기',eng:'Ruth',chaps:4},
+  {id:9,kor:'사무엘상',eng:'1 Samuel',chaps:31},{id:10,kor:'사무엘하',eng:'2 Samuel',chaps:24},
+  {id:11,kor:'열왕기상',eng:'1 Kings',chaps:22},{id:12,kor:'열왕기하',eng:'2 Kings',chaps:25},
+  {id:13,kor:'역대상',eng:'1 Chronicles',chaps:29},{id:14,kor:'역대하',eng:'2 Chronicles',chaps:36},
+  {id:15,kor:'에스라',eng:'Ezra',chaps:10},{id:16,kor:'느헤미야',eng:'Nehemiah',chaps:13},
+  {id:17,kor:'에스더',eng:'Esther',chaps:10},{id:18,kor:'욥기',eng:'Job',chaps:42},
+  {id:19,kor:'시편',eng:'Psalms',chaps:150},{id:20,kor:'잠언',eng:'Proverbs',chaps:31},
+  {id:21,kor:'전도서',eng:'Ecclesiastes',chaps:12},{id:22,kor:'아가',eng:'Song of Songs',chaps:8},
+  {id:23,kor:'이사야',eng:'Isaiah',chaps:66},{id:24,kor:'예레미야',eng:'Jeremiah',chaps:52},
+  {id:25,kor:'예레미야애가',eng:'Lamentations',chaps:5},{id:26,kor:'에스겔',eng:'Ezekiel',chaps:48},
+  {id:27,kor:'다니엘',eng:'Daniel',chaps:12},{id:28,kor:'호세아',eng:'Hosea',chaps:14},
+  {id:29,kor:'요엘',eng:'Joel',chaps:3},{id:30,kor:'아모스',eng:'Amos',chaps:9},
+  {id:31,kor:'오바댜',eng:'Obadiah',chaps:1},{id:32,kor:'요나',eng:'Jonah',chaps:4},
+  {id:33,kor:'미가',eng:'Micah',chaps:7},{id:34,kor:'나훔',eng:'Nahum',chaps:3},
+  {id:35,kor:'하박국',eng:'Habakkuk',chaps:3},{id:36,kor:'스바냐',eng:'Zephaniah',chaps:3},
+  {id:37,kor:'학개',eng:'Haggai',chaps:2},{id:38,kor:'스가랴',eng:'Zechariah',chaps:14},
+  {id:39,kor:'말라기',eng:'Malachi',chaps:4},{id:40,kor:'마태복음',eng:'Matthew',chaps:28},
+  {id:41,kor:'마가복음',eng:'Mark',chaps:16},{id:42,kor:'누가복음',eng:'Luke',chaps:24},
+  {id:43,kor:'요한복음',eng:'John',chaps:21},{id:44,kor:'사도행전',eng:'Acts',chaps:28},
+  {id:45,kor:'로마서',eng:'Romans',chaps:16},{id:46,kor:'고린도전서',eng:'1 Corinthians',chaps:16},
+  {id:47,kor:'고린도후서',eng:'2 Corinthians',chaps:13},{id:48,kor:'갈라디아서',eng:'Galatians',chaps:6},
+  {id:49,kor:'에베소서',eng:'Ephesians',chaps:6},{id:50,kor:'빌립보서',eng:'Philippians',chaps:4},
+  {id:51,kor:'골로새서',eng:'Colossians',chaps:4},{id:52,kor:'데살로니가전서',eng:'1 Thessalonians',chaps:5},
+  {id:53,kor:'데살로니가후서',eng:'2 Thessalonians',chaps:3},{id:54,kor:'디모데전서',eng:'1 Timothy',chaps:6},
+  {id:55,kor:'디모데후서',eng:'2 Timothy',chaps:4},{id:56,kor:'디도서',eng:'Titus',chaps:3},
+  {id:57,kor:'빌레몬서',eng:'Philemon',chaps:1},{id:58,kor:'히브리서',eng:'Hebrews',chaps:13},
+  {id:59,kor:'야고보서',eng:'James',chaps:5},{id:60,kor:'베드로전서',eng:'1 Peter',chaps:5},
+  {id:61,kor:'베드로후서',eng:'2 Peter',chaps:3},{id:62,kor:'요한일서',eng:'1 John',chaps:5},
+  {id:63,kor:'요한이서',eng:'2 John',chaps:1},{id:64,kor:'요한삼서',eng:'3 John',chaps:1},
+  {id:65,kor:'유다서',eng:'Jude',chaps:1},{id:66,kor:'요한계시록',eng:'Revelation',chaps:22}
+];
+const OT_END=39;
+
+// ─── STATE ───
+let state={
+  translation:'nkrv', book:43, chapter:3, verse:null,
+  bibleData:{}, loadedTrans:new Set(),
+  fontSize:'medium', theme:'light',
+  bookmarks: JSON.parse(localStorage.getItem('bm')||'[]'),
+  hymnView:null, hymnSearchQuery:'', bibleMode:'read'
+};
+
+// ─── PASSWORD ───
+function checkAuth(){
+  if(localStorage.getItem('auth')==='ok'){unlock();return}
+  document.getElementById('lockScreen').style.display='flex';
+}
+function unlock(){
+  document.getElementById('lockScreen').style.display='none';
+  document.getElementById('app').style.display='flex';
+  document.getElementById('app').style.flexDirection='column';
+  init();
+}
+document.getElementById('pwBtn').onclick=tryPassword;
+document.getElementById('pwInput').addEventListener('keydown',e=>{if(e.key==='Enter')tryPassword()});
+function tryPassword(){
+  const val=document.getElementById('pwInput').value;
+  if(val===PASSWORD){
+    localStorage.setItem('auth','ok'); // 무기한 저장
+    unlock();
+  } else {
+    document.getElementById('pwError').textContent='암호가 맞지 않습니다';
+    document.getElementById('pwInput').value='';
+    document.getElementById('pwInput').focus();
+    setTimeout(()=>document.getElementById('pwError').textContent='',2000);
+  }
+}
+
+// ─── INIT ───
+function init(){
+  loadTheme(); loadFontSize();
+  renderBookModal();
+  renderHymnList();
+  renderBookmarks();
+  loadBible(state.translation).then(()=>renderChapter());
+  
+  // NAV TABS
+  document.querySelectorAll('.nav-btn[data-page]').forEach(btn=>{
+    btn.addEventListener('click',()=>switchPage(btn.dataset.page));
+  });
+  
+  // TRANSLATION TABS
+  document.querySelectorAll('.trans-btn').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      state.translation=btn.dataset.t;
+      document.querySelectorAll('.trans-btn').forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');
+      if(!state.loadedTrans.has(state.translation)){
+        loadBible(state.translation).then(()=>{
+          state.bibleMode='read'; renderChapter();
+        });
+      } else { state.bibleMode='read'; renderChapter(); }
+    });
+  });
+  
+  // FONT SIZE
+  document.querySelectorAll('.font-btn').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      state.fontSize=btn.dataset.fs;
+      document.querySelectorAll('.font-btn').forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');
+      const sizes={small:'15px',medium:'17px',large:'20px',xlarge:'23px'};
+      document.documentElement.style.setProperty('--font-size',sizes[state.fontSize]);
+      localStorage.setItem('fontSize',state.fontSize);
+      if(state.bibleMode==='read') renderChapter();
+    });
+  });
+  
+  // SEARCH
+  document.getElementById('bibleSearchBtn').onclick=doSearch;
+  document.getElementById('bibleSearchInput').addEventListener('keydown',e=>{if(e.key==='Enter')doSearch()});
+  document.getElementById('hymnSearchBtn').onclick=doHymnSearch;
+  document.getElementById('hymnSearchInput').addEventListener('keydown',e=>{if(e.key==='Enter')doHymnSearch()});
+  
+  // NAV
+  document.getElementById('bookSelectBtn').onclick=()=>openModal('bookModal');
+  document.getElementById('chapterSelectBtn').onclick=()=>openChapterModal();
+  document.getElementById('prevChapBtn').onclick=()=>changeChapter(-1);
+  document.getElementById('nextChapBtn').onclick=()=>changeChapter(1);
+  document.getElementById('closeBookModal').onclick=()=>closeModal('bookModal');
+  document.getElementById('closeChapterModal').onclick=()=>closeModal('chapterModal');
+  document.getElementById('bookSearch').addEventListener('input',e=>filterBookModal(e.target.value));
+  
+  // THEME & BOOKMARK
+  document.getElementById('themeBtn').onclick=toggleTheme;
+  document.getElementById('bookmarkToggleBtn').onclick=()=>switchPage('bookmarkPage');
+  
+  // Wake Lock
+  setupWakeLock();
+  
+  // Swipe
+  setupSwipe();
+}
+
+// ─── BIBLE LOADING ───
+async function loadBible(t){
+  if(state.loadedTrans.has(t)) return;
+  document.getElementById('bibleContent').innerHTML='<div class="loading"><div class="spinner"></div><span>'+
+    {nkrv:'개역개정',hrv:'개역한글',niv:'NIV'}[t]+' 로딩 중...</span></div>';
+  try{
+    const r=await fetch('data/bible_'+t+'.json');
+    state.bibleData[t]=await r.json();
+    state.loadedTrans.add(t);
+  }catch(e){
+    document.getElementById('bibleContent').innerHTML='<div class="no-results">⚠ 성경 데이터를 불러올 수 없습니다</div>';
+  }
+}
+
+// ─── RENDER CHAPTER ───
+function renderChapter(){
+  const t=state.translation, b=state.book, c=state.chapter;
+  const bd=state.bibleData[t];
+  if(!bd){return;}
+  const book=BOOKS[b-1];
+  const chData=bd[String(b)]?.[String(c)]||{};
+  const verses=Object.keys(chData).sort((a,z)=>+a-+z);
+  
+  // update nav
+  document.getElementById('currentBookLabel').textContent=book.kor;
+  document.getElementById('chapterSelectBtn').textContent=c+'장';
+  document.getElementById('headerTitle').textContent='📖 '+book.kor+' '+c+'장';
+  
+  let html='<div class="verse-container"><div class="chapter-header"><h2>'+
+    book.kor+' '+c+'장</h2><p>'+book.eng+' '+c+'</p></div>';
+  
+  verses.forEach(v=>{
+    const txt=chData[v]||'';
+    const hl=state.verse==+v?' highlighted':'';
+    html+='<div class="verse'+hl+'" onclick="verseClick('+b+','+c+','+v+',this)">'+
+      '<span class="verse-num">'+v+'</span><span class="verse-text">'+escHtml(txt)+'</span></div>';
+  });
+  html+='</div>';
+  document.getElementById('bibleContent').innerHTML=html;
+  state.bibleMode='read';
+  
+  if(state.verse){
+    setTimeout(()=>{
+      const els=document.querySelectorAll('.verse.highlighted');
+      if(els.length) els[0].scrollIntoView({block:'center',behavior:'smooth'});
+    },100);
+    state.verse=null;
+  }
+  
+  // Save last position
+  localStorage.setItem('lastPos',JSON.stringify({b,c,t}));
+}
+
+// ─── VERSE CLICK (copy & bookmark) ───
+function verseClick(b,c,v,el){
+  const t=state.translation;
+  const txt=state.bibleData[t]?.[String(b)]?.[String(c)]?.[String(v)]||'';
+  const ref=BOOKS[b-1].kor+' '+c+':'+v;
+  const full=ref+' '+txt;
+  navigator.clipboard?.writeText(full).then(()=>showToast('📋 복사했습니다'));
+}
+function showToast(msg){
+  const t=document.getElementById('copyToast');
+  t.textContent=msg; t.style.opacity='1';
+  setTimeout(()=>t.style.opacity='0',1800);
+}
+
+// ─── SEARCH ───
+async function doSearch(){
+  const q=document.getElementById('bibleSearchInput').value.trim();
+  if(!q||q.length<2){return;}
+  
+  // Ensure current translation is loaded
+  if(!state.loadedTrans.has(state.translation)){
+    await loadBible(state.translation);
+  }
+  
+  const bd=state.bibleData[state.translation];
+  const results=[];
+  
+  for(const bk of BOOKS){
+    const bData=bd[String(bk.id)];
+    if(!bData) continue;
+    for(const [c,cData] of Object.entries(bData)){
+      for(const [v,txt] of Object.entries(cData)){
+        if(txt.includes(q)){
+          results.push({book:bk.id,c:+c,v:+v,txt,ref:bk.kor+' '+c+':'+v});
+          if(results.length>=200) break;
+        }
+      }
+      if(results.length>=200) break;
+    }
+    if(results.length>=200) break;
+  }
+  
+  state.bibleMode='search';
+  let html='<div class="search-count">🔍 "'+q+'" 검색 결과: '+results.length+'개'+
+    (results.length>=200?' (최대 200개)':'')+'</div><div class="search-results">';
+  if(!results.length){
+    html+='<div class="no-results">검색 결과가 없습니다</div>';
+  } else {
+    results.forEach(r=>{
+      const hl=r.txt.replace(new RegExp('('+q+')','g'),'<mark>$1</mark>');
+      html+='<div class="result-item" onclick="goToVerse('+r.book+','+r.c+','+r.v+')">'+
+        '<div class="result-ref">'+r.ref+'</div>'+
+        '<div class="result-text">'+hl+'</div></div>';
+    });
+  }
+  html+='</div>';
+  document.getElementById('bibleContent').innerHTML=html;
+  document.getElementById('bibleSearchInput').blur();
+}
+
+function goToVerse(b,c,v){
+  state.book=b; state.chapter=c; state.verse=v;
+  document.getElementById('bibleSearchInput').value='';
+  renderChapter();
+  // Scroll top
+  document.getElementById('bibleContent').scrollIntoView({block:'start',behavior:'smooth'});
+}
+
+// ─── CHAPTER NAVIGATION ───
+function changeChapter(dir){
+  const book=BOOKS[state.book-1];
+  const nc=state.chapter+dir;
+  if(nc<1){
+    if(state.book>1){state.book--;state.chapter=BOOKS[state.book-1].chaps;}
+    else return;
+  } else if(nc>book.chaps){
+    if(state.book<66){state.book++;state.chapter=1;}
+    else return;
+  } else {
+    state.chapter=nc;
+  }
+  state.bibleMode='read';
+  renderChapter();
+  window.scrollTo(0,0);
+}
+
+// ─── MODALS ───
+function openModal(id){document.getElementById(id).classList.add('open')}
+function closeModal(id){document.getElementById(id).classList.remove('open')}
+
+function renderBookModal(){
+  renderBookModalContent('');
+}
+function filterBookModal(q){renderBookModalContent(q)}
+function renderBookModalContent(q){
+  const body=document.getElementById('bookModalBody');
+  let html='';
+  const ot=BOOKS.slice(0,OT_END), nt=BOOKS.slice(OT_END);
+  
+  function renderSection(title,arr){
+    const filtered=q?arr.filter(b=>b.kor.includes(q)||b.eng.toLowerCase().includes(q.toLowerCase())):arr;
+    if(!filtered.length) return;
+    html+='<div class="section-label">'+title+'</div><div class="book-grid">';
+    filtered.forEach(b=>{
+      html+='<div class="book-item" onclick="selectBook('+b.id+')">'+
+        (b.id<=39?b.kor.slice(0,3):b.kor.slice(0,4))+'</div>';
+    });
+    html+='</div>';
+  }
+  renderSection('구약 Old Testament',ot);
+  renderSection('신약 New Testament',nt);
+  body.innerHTML=html;
+}
+
+function selectBook(id){
+  state.book=id; state.chapter=1;
+  closeModal('bookModal');
+  openChapterModal();
+}
+
+function openChapterModal(){
+  const book=BOOKS[state.book-1];
+  document.getElementById('chapterModalTitle').textContent=book.kor+' — 장 선택';
+  const grid=document.getElementById('chapterGrid');
+  let html='';
+  for(let c=1;c<=book.chaps;c++){
+    html+='<div class="chap-item'+(c===state.chapter?' ':"'")+(c===state.chapter?' style="background:var(--primary);color:#fff"':'')+
+      '" onclick="selectChapter('+c+')">'+c+'</div>';
+  }
+  grid.innerHTML=html;
+  openModal('chapterModal');
+}
+
+function selectChapter(c){
+  state.chapter=c;
+  closeModal('chapterModal');
+  if(!state.loadedTrans.has(state.translation)){
+    loadBible(state.translation).then(()=>renderChapter());
+  } else {
+    renderChapter();
+  }
+  window.scrollTo(0,0);
+}
+
+// ─── HYMNS ───
+function renderHymnList(filter){
+  const entries=Object.entries(HYMN_TITLES);
+  const filtered=filter?entries.filter(([n,t])=>
+    String(n).includes(filter)||t.includes(filter)):entries;
+  
+  let html='';
+  if(!filtered.length){
+    html='<div class="no-results">검색 결과가 없습니다</div>';
+  } else {
+    filtered.forEach(([n,t])=>{
+      html+='<div class="hymn-list-item" onclick="openHymn('+n+')">'+
+        '<span class="hymn-num">'+n+'장</span>'+
+        '<span class="hymn-title-text">'+t+'</span>'+
+        '<span class="hymn-arrow">›</span></div>';
+    });
+  }
+  document.getElementById('hymnContent').innerHTML=html;
+  state.hymnView=null;
+}
+
+function doHymnSearch(){
+  const q=document.getElementById('hymnSearchInput').value.trim();
+  renderHymnList(q||null);
+}
+
+function openHymn(n){
+  state.hymnView=n;
+  const title=HYMN_TITLES[n]||('찬송가 '+n+'장');
+  document.getElementById('headerTitle').textContent='🎵 '+n+'장 '+title;
+  
+  const pad=String(n).padStart(3,'0');
+  const url='https://raw.githubusercontent.com/boonger9/church-hymns/main/hymn_'+pad+'.jpg';
+  
+  let html='<div class="hymn-viewer">'+
+    '<img src="'+url+'" alt="찬송가 '+n+'장 '+title+'" '+
+    'onerror="this.src=\'\';this.alt=\'이미지를 불러올 수 없습니다\';this.style=\'padding:40px;text-align:center;display:block\'">'+
+    '</div>'+
+    '<div class="hymn-nav">'+
+    '<button onclick="openHymn('+(n>1?n-1:1)+')" '+(n<=1?'disabled':'')+'>‹ '+(n-1)+'장</button>'+
+    '<button onclick="backToHymnList()" style="background:var(--surface2);color:var(--primary)">목록</button>'+
+    '<button onclick="openHymn('+(n<625?n+1:625)+')" '+(n>=625?'disabled':'')+'>'+( n+1)+'장 ›</button>'+
+    '</div>';
+  document.getElementById('hymnContent').innerHTML=html;
+  window.scrollTo(0,0);
+}
+
+function backToHymnList(){
+  document.getElementById('headerTitle').textContent='🎵 찬송가';
+  document.getElementById('hymnSearchInput').value='';
+  renderHymnList(null);
+}
+
+// ─── BOOKMARKS ───
+function renderBookmarks(){
+  const list=document.getElementById('bookmarkList');
+  if(!state.bookmarks.length){
+    list.innerHTML='<div class="empty-state"><span class="empty-icon">🔖</span>'+
+      '<span>즐겨찾기가 없습니다<br>성경 구절을 길게 눌러 추가하세요</span></div>';
+    return;
+  }
+  let html='';
+  state.bookmarks.forEach((bm,i)=>{
+    html+='<div class="bm-item" onclick="goToVerse('+bm.b+','+bm.c+','+bm.v+');switchPage(\'biblePage\')">'+
+      '<div style="flex:1"><div class="bm-ref">'+bm.ref+'</div>'+
+      '<div class="bm-text">'+escHtml(bm.txt.slice(0,80))+(bm.txt.length>80?'…':'')+'</div></div>'+
+      '<button class="bm-del" onclick="removeBm(event,'+i+')">✕</button></div>';
+  });
+  list.innerHTML=html;
+}
+function removeBm(e,i){
+  e.stopPropagation();
+  state.bookmarks.splice(i,1);
+  localStorage.setItem('bm',JSON.stringify(state.bookmarks));
+  renderBookmarks();
+}
+// Long-press to bookmark (add touch handler)
+let pressTimer=null;
+document.addEventListener('touchstart',e=>{
+  const v=e.target.closest('.verse');
+  if(!v) return;
+  pressTimer=setTimeout(()=>{
+    const match=v.querySelector('.verse-num');
+    if(!match) return;
+    const vn=+match.textContent;
+    const t=state.translation;
+    const txt=state.bibleData[t]?.[String(state.book)]?.[String(state.chapter)]?.[String(vn)]||'';
+    const ref=BOOKS[state.book-1].kor+' '+state.chapter+':'+vn;
+    if(!state.bookmarks.find(bm=>bm.ref===ref)){
+      state.bookmarks.unshift({b:state.book,c:state.chapter,v:vn,ref,txt});
+      localStorage.setItem('bm',JSON.stringify(state.bookmarks));
+      showToast('🔖 즐겨찾기에 추가했습니다');
+    } else {
+      showToast('이미 즐겨찾기에 있습니다');
+    }
+  },500);
+},true);
+document.addEventListener('touchend',()=>clearTimeout(pressTimer),true);
+
+// ─── PAGE SWITCHING ───
+function switchPage(id){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  document.querySelectorAll('.nav-btn[data-page]').forEach(b=>{
+    b.classList.toggle('active',b.dataset.page===id);
+  });
+  const titles={biblePage:'📖 성경',hymnPage:'🎵 찬송가',bookmarkPage:'🔖 즐겨찾기'};
+  if(id==='bookmarkPage'){renderBookmarks();document.getElementById('headerTitle').textContent=titles[id];}
+  else if(id==='hymnPage'){
+    if(!state.hymnView) document.getElementById('headerTitle').textContent=titles[id];
+  } else if(id==='biblePage'){
+    const book=BOOKS[state.book-1];
+    document.getElementById('headerTitle').textContent='📖 '+book.kor+' '+state.chapter+'장';
+  }
+}
+
+// ─── THEME ───
+function loadTheme(){
+  const saved=localStorage.getItem('theme')||'light';
+  state.theme=saved;
+  document.documentElement.setAttribute('data-theme',saved);
+  document.getElementById('themeBtn').textContent=saved==='dark'?'☀️':'🌙';
+}
+function toggleTheme(){
+  state.theme=state.theme==='light'?'dark':'light';
+  document.documentElement.setAttribute('data-theme',state.theme);
+  localStorage.setItem('theme',state.theme);
+  document.getElementById('themeBtn').textContent=state.theme==='dark'?'☀️':'🌙';
+}
+
+// ─── FONT SIZE ───
+function loadFontSize(){
+  const saved=localStorage.getItem('fontSize')||'medium';
+  state.fontSize=saved;
+  const sizes={small:'15px',medium:'17px',large:'20px',xlarge:'23px'};
+  document.documentElement.style.setProperty('--font-size',sizes[saved]);
+  document.querySelectorAll('.font-btn').forEach(b=>{
+    b.classList.toggle('active',b.dataset.fs===saved);
+  });
+}
+
+// ─── WAKE LOCK ───
+let wakeLock=null;
+async function setupWakeLock(){
+  if(!('wakeLock' in navigator)) return;
+  try{
+    wakeLock=await navigator.wakeLock.request('screen');
+    document.addEventListener('visibilitychange',async()=>{
+      if(document.visibilityState==='visible' && !wakeLock){
+        wakeLock=await navigator.wakeLock.request('screen');
+      }
+    });
+  }catch(e){}
+}
+
+// ─── SWIPE ───
+function setupSwipe(){
+  let sx=0,sy=0;
+  document.addEventListener('touchstart',e=>{
+    if(e.target.closest('#bibleContent')){
+      sx=e.touches[0].clientX; sy=e.touches[0].clientY;
+    }
+  },{passive:true});
+  document.addEventListener('touchend',e=>{
+    if(!sx) return;
+    const dx=e.changedTouches[0].clientX-sx;
+    const dy=e.changedTouches[0].clientY-sy;
+    if(Math.abs(dx)>70&&Math.abs(dx)>Math.abs(dy)*2){
+      if(dx<0) changeChapter(1);
+      else changeChapter(-1);
+    }
+    sx=sy=0;
+  },{passive:true});
+}
+
+// ─── RESTORE LAST POSITION ───
+function restoreLastPos(){
+  try{
+    const last=JSON.parse(localStorage.getItem('lastPos')||'{}');
+    if(last.b&&last.c){
+      state.book=last.b; state.chapter=last.c;
+      if(last.t) state.translation=last.t;
+    }
+  }catch(e){}
+}
+
+// ─── UTILS ───
+function escHtml(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
+
+// ─── CLOSE MODAL ON BACKDROP ───
+document.querySelectorAll('.modal-overlay').forEach(m=>{
+  m.addEventListener('click',e=>{if(e.target===m)m.classList.remove('open')});
+});
+
+// ─── START ───
+restoreLastPos();
+checkAuth();
+</script>
+</body>
+</html>
