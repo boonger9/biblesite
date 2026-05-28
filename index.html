@@ -72,9 +72,21 @@ button{cursor:pointer;border:none;background:none;font-family:inherit;color:inhe
 .page.active{display:block}
 
 /* ── BIBLE PAGE ── */
-.bible-controls{background:var(--surface);border-bottom:1px solid var(--border);
+.bible-controls{
+  background:var(--surface);border-bottom:1px solid var(--border);
   padding:10px 14px;display:flex;flex-direction:column;gap:8px;
-  position:sticky;top:54px;z-index:90}
+  position:sticky;top:54px;z-index:90;
+  overflow:hidden;
+  max-height:200px;
+  transition:max-height .32s ease, padding .32s ease, opacity .22s ease, border-color .22s ease;
+}
+.bible-controls.collapsed{
+  max-height:0;
+  padding-top:0;
+  padding-bottom:0;
+  opacity:0;
+  border-bottom-color:transparent;
+}
 .trans-tabs{display:flex;gap:6px}
 .trans-btn{padding:6px 14px;border-radius:20px;font-size:13px;font-weight:600;
   border:2px solid var(--border);background:transparent;color:var(--text2);transition:all .2s}
@@ -83,7 +95,7 @@ button{cursor:pointer;border:none;background:none;font-family:inherit;color:inhe
 .search-input{flex:1;padding:9px 12px;border-radius:8px;border:1px solid var(--border);
   background:var(--surface2);font-size:14px;color:var(--text);outline:none}
 .search-input:focus{border-color:var(--primary)}
-.search-btn{background:var(--primary);color:#fff;padding:9px 16px;border-radius:8px;font-size:14px}
+.search-btn{background:var(--primary);color:#fff;padding:9px 16px;border-radius:8px;font-size:14px;white-space:nowrap}
 
 /* Nav bar (book/chapter/verse) */
 .nav-bar{background:var(--surface2);border-bottom:1px solid var(--border);
@@ -149,8 +161,21 @@ button{cursor:pointer;border:none;background:none;font-family:inherit;color:inhe
 .search-count{padding:10px 14px;font-size:13px;color:var(--text3);background:var(--surface2)}
 
 /* ── HYMN PAGE ── */
-.hymn-controls{background:var(--surface);border-bottom:1px solid var(--border);
-  padding:10px 14px;position:sticky;top:54px;z-index:90;display:flex;flex-direction:column;gap:8px}
+.hymn-controls{
+  background:var(--surface);border-bottom:1px solid var(--border);
+  padding:10px 14px;position:sticky;top:54px;z-index:90;
+  display:flex;flex-direction:column;gap:8px;
+  overflow:hidden;
+  max-height:200px;
+  transition:max-height .32s ease, padding .32s ease, opacity .22s ease, border-color .22s ease;
+}
+.hymn-controls.collapsed{
+  max-height:0;
+  padding-top:0;
+  padding-bottom:0;
+  opacity:0;
+  border-bottom-color:transparent;
+}
 .hymn-search-row{display:flex;gap:8px}
 .hymn-list{padding:0}
 .hymn-list-item{display:flex;align-items:center;padding:13px 16px;
@@ -162,7 +187,8 @@ button{cursor:pointer;border:none;background:none;font-family:inherit;color:inhe
 .hymn-viewer{padding:0}
 .hymn-viewer img{width:100%;display:block}
 .hymn-nav{display:flex;gap:10px;padding:12px 14px;background:var(--surface);
-  border-top:1px solid var(--border);position:sticky;bottom:70px}
+  border-top:1px solid var(--border);
+  position:sticky;bottom:70px;z-index:80}
 .hymn-nav button{flex:1;padding:11px;border-radius:10px;font-size:15px;font-weight:600;
   background:var(--primary);color:#fff}
 .hymn-nav button:disabled{background:var(--border);color:var(--text3)}
@@ -179,13 +205,22 @@ button{cursor:pointer;border:none;background:none;font-family:inherit;color:inhe
 .bm-text{font-size:14px;line-height:1.6;color:var(--text);flex:1}
 .bm-del{color:var(--text3);font-size:18px;padding:2px}
 
-/* ── FONT SIZE CONTROL ── */
-.font-bar{display:flex;align-items:center;gap:8px;padding:6px 0}
-.font-bar span{font-size:12px;color:var(--text2)}
-.font-btns{display:flex;gap:4px}
-.font-btn{padding:4px 10px;border-radius:6px;font-size:13px;
-  border:1px solid var(--border);background:var(--surface2);color:var(--text)}
-.font-btn.active{background:var(--primary);color:#fff;border-color:var(--primary)}
+/* ── FONT SIZE STEP CONTROL ── */
+.font-control{display:flex;align-items:center;gap:6px}
+.font-step-btn{
+  width:32px;height:32px;border-radius:8px;
+  font-size:20px;font-weight:700;line-height:1;
+  border:1.5px solid var(--border);
+  background:var(--surface2);color:var(--primary);
+  display:flex;align-items:center;justify-content:center;
+  transition:background .15s,color .15s;
+  -webkit-user-select:none;user-select:none;
+}
+.font-step-btn:active{background:var(--primary);color:#fff}
+.font-size-label{
+  font-size:12px;color:var(--text2);min-width:30px;
+  text-align:center;font-weight:700;
+}
 
 /* Loading spinner */
 .loading{display:flex;align-items:center;justify-content:center;
@@ -221,21 +256,17 @@ button{cursor:pointer;border:none;background:none;font-family:inherit;color:inhe
 
   <!-- BIBLE PAGE -->
   <div class="page active" id="biblePage">
-    <div class="bible-controls">
+    <div class="bible-controls" id="bibleControls">
       <div style="display:flex;justify-content:space-between;align-items:center">
         <div class="trans-tabs">
           <button class="trans-btn active" data-t="nkrv">개역개정</button>
           <button class="trans-btn" data-t="hrv">개역한글</button>
           <button class="trans-btn" data-t="niv">NIV</button>
         </div>
-        <div class="font-bar">
-          <span>가</span>
-          <div class="font-btns">
-            <button class="font-btn" data-fs="small">小</button>
-            <button class="font-btn active" data-fs="medium">中</button>
-            <button class="font-btn" data-fs="large">大</button>
-            <button class="font-btn" data-fs="xlarge">特</button>
-          </div>
+        <div class="font-control">
+          <button class="font-step-btn" id="fontDecBtn">－</button>
+          <span class="font-size-label" id="fontSizeLabel">17px</span>
+          <button class="font-step-btn" id="fontIncBtn">＋</button>
         </div>
       </div>
       <div class="search-row">
@@ -261,7 +292,7 @@ button{cursor:pointer;border:none;background:none;font-family:inherit;color:inhe
 
   <!-- HYMN PAGE -->
   <div class="page" id="hymnPage">
-    <div class="hymn-controls">
+    <div class="hymn-controls" id="hymnControls">
       <div class="hymn-search-row">
         <input class="search-input" id="hymnSearchInput" placeholder="🔍 번호 또는 제목 검색">
         <button class="search-btn" id="hymnSearchBtn">검색</button>
@@ -322,7 +353,7 @@ button{cursor:pointer;border:none;background:none;font-family:inherit;color:inhe
 <script src="data/hymns.js"></script>
 <script>
 // ─── CONFIG ───
-const PASSWORD = '1004'; // ← 여기서 암호 변경
+const PASSWORD = '1004';
 
 // ─── BIBLE BOOK NAMES ───
 const BOOKS=[
@@ -366,7 +397,8 @@ const OT_END=39;
 let state={
   translation:'nkrv', book:43, chapter:3, verse:null,
   bibleData:{}, loadedTrans:new Set(),
-  fontSize:'medium', theme:'light',
+  fontSize:17,
+  theme:'light',
   bookmarks: JSON.parse(localStorage.getItem('bm')||'[]'),
   hymnView:null, hymnSearchQuery:'', bibleMode:'read'
 };
@@ -387,7 +419,7 @@ document.getElementById('pwInput').addEventListener('keydown',e=>{if(e.key==='En
 function tryPassword(){
   const val=document.getElementById('pwInput').value;
   if(val===PASSWORD){
-    localStorage.setItem('auth','ok'); // 무기한 저장
+    localStorage.setItem('auth','ok');
     unlock();
   } else {
     document.getElementById('pwError').textContent='암호가 맞지 않습니다';
@@ -399,17 +431,18 @@ function tryPassword(){
 
 // ─── INIT ───
 function init(){
-  loadTheme(); loadFontSize();
+  loadTheme();
+  loadFontSize();
   renderBookModal();
   renderHymnList();
   renderBookmarks();
   loadBible(state.translation).then(()=>renderChapter());
-  
+
   // NAV TABS
   document.querySelectorAll('.nav-btn[data-page]').forEach(btn=>{
     btn.addEventListener('click',()=>switchPage(btn.dataset.page));
   });
-  
+
   // TRANSLATION TABS
   document.querySelectorAll('.trans-btn').forEach(btn=>{
     btn.addEventListener('click',()=>{
@@ -417,32 +450,25 @@ function init(){
       document.querySelectorAll('.trans-btn').forEach(b=>b.classList.remove('active'));
       btn.classList.add('active');
       if(!state.loadedTrans.has(state.translation)){
-        loadBible(state.translation).then(()=>{
-          state.bibleMode='read'; renderChapter();
-        });
+        loadBible(state.translation).then(()=>{state.bibleMode='read';renderChapter();});
       } else { state.bibleMode='read'; renderChapter(); }
     });
   });
-  
-  // FONT SIZE
-  document.querySelectorAll('.font-btn').forEach(btn=>{
-    btn.addEventListener('click',()=>{
-      state.fontSize=btn.dataset.fs;
-      document.querySelectorAll('.font-btn').forEach(b=>b.classList.remove('active'));
-      btn.classList.add('active');
-      const sizes={small:'15px',medium:'17px',large:'20px',xlarge:'23px'};
-      document.documentElement.style.setProperty('--font-size',sizes[state.fontSize]);
-      localStorage.setItem('fontSize',state.fontSize);
-      if(state.bibleMode==='read') renderChapter();
-    });
+
+  // FONT SIZE STEP BUTTONS
+  document.getElementById('fontIncBtn').addEventListener('click',()=>{
+    applyFontSize(state.fontSize + 1);
   });
-  
+  document.getElementById('fontDecBtn').addEventListener('click',()=>{
+    applyFontSize(state.fontSize - 1);
+  });
+
   // SEARCH
   document.getElementById('bibleSearchBtn').onclick=doSearch;
   document.getElementById('bibleSearchInput').addEventListener('keydown',e=>{if(e.key==='Enter')doSearch()});
   document.getElementById('hymnSearchBtn').onclick=doHymnSearch;
   document.getElementById('hymnSearchInput').addEventListener('keydown',e=>{if(e.key==='Enter')doHymnSearch()});
-  
+
   // NAV
   document.getElementById('bookSelectBtn').onclick=()=>openModal('bookModal');
   document.getElementById('chapterSelectBtn').onclick=()=>openChapterModal();
@@ -451,16 +477,75 @@ function init(){
   document.getElementById('closeBookModal').onclick=()=>closeModal('bookModal');
   document.getElementById('closeChapterModal').onclick=()=>closeModal('chapterModal');
   document.getElementById('bookSearch').addEventListener('input',e=>filterBookModal(e.target.value));
-  
+
   // THEME & BOOKMARK
   document.getElementById('themeBtn').onclick=toggleTheme;
   document.getElementById('bookmarkToggleBtn').onclick=()=>switchPage('bookmarkPage');
-  
+
+  // SCROLL-HIDE CONTROLS
+  setupScrollHide();
+
   // Wake Lock
   setupWakeLock();
-  
+
   // Swipe
   setupSwipe();
+}
+
+// ─── FONT SIZE ───
+const FONT_MIN = 10;
+const FONT_MAX = 36;
+
+function applyFontSize(px){
+  px = Math.max(FONT_MIN, Math.min(FONT_MAX, px));
+  state.fontSize = px;
+  document.documentElement.style.setProperty('--font-size', px + 'px');
+  document.getElementById('fontSizeLabel').textContent = px + 'px';
+  localStorage.setItem('fontSizePx', String(px));
+}
+
+function loadFontSize(){
+  // Try new px storage first, fall back to old named sizes
+  const savedPx = localStorage.getItem('fontSizePx');
+  if(savedPx){
+    applyFontSize(parseInt(savedPx, 10));
+  } else {
+    const oldMap = {small:15, medium:17, large:20, xlarge:23};
+    const old = localStorage.getItem('fontSize');
+    applyFontSize(oldMap[old] || 17);
+  }
+}
+
+// ─── SCROLL HIDE CONTROLS ───
+function setupScrollHide(){
+  let lastY = 0;
+  const bibleCtrl = document.getElementById('bibleControls');
+  const hymnCtrl  = document.getElementById('hymnControls');
+
+  window.addEventListener('scroll', ()=>{
+    const y = window.scrollY;
+    const goingDown = y > lastY;
+
+    // Bible controls
+    if(document.getElementById('biblePage').classList.contains('active')){
+      if(goingDown && y > 60){
+        bibleCtrl.classList.add('collapsed');
+      } else if(!goingDown){
+        bibleCtrl.classList.remove('collapsed');
+      }
+    }
+
+    // Hymn controls (only for list view — stays hidden in viewer)
+    if(document.getElementById('hymnPage').classList.contains('active') && !state.hymnView){
+      if(goingDown && y > 60){
+        hymnCtrl.classList.add('collapsed');
+      } else if(!goingDown){
+        hymnCtrl.classList.remove('collapsed');
+      }
+    }
+
+    lastY = y <= 0 ? 0 : y;
+  }, {passive:true});
 }
 
 // ─── BIBLE LOADING ───
@@ -485,15 +570,14 @@ function renderChapter(){
   const book=BOOKS[b-1];
   const chData=bd[String(b)]?.[String(c)]||{};
   const verses=Object.keys(chData).sort((a,z)=>+a-+z);
-  
-  // update nav
+
   document.getElementById('currentBookLabel').textContent=book.kor;
   document.getElementById('chapterSelectBtn').textContent=c+'장';
   document.getElementById('headerTitle').textContent='📖 '+book.kor+' '+c+'장';
-  
+
   let html='<div class="verse-container"><div class="chapter-header"><h2>'+
     book.kor+' '+c+'장</h2><p>'+book.eng+' '+c+'</p></div>';
-  
+
   verses.forEach(v=>{
     const txt=chData[v]||'';
     const hl=state.verse==+v?' highlighted':'';
@@ -503,7 +587,7 @@ function renderChapter(){
   html+='</div>';
   document.getElementById('bibleContent').innerHTML=html;
   state.bibleMode='read';
-  
+
   if(state.verse){
     setTimeout(()=>{
       const els=document.querySelectorAll('.verse.highlighted');
@@ -511,12 +595,11 @@ function renderChapter(){
     },100);
     state.verse=null;
   }
-  
-  // Save last position
+
   localStorage.setItem('lastPos',JSON.stringify({b,c,t}));
 }
 
-// ─── VERSE CLICK (copy & bookmark) ───
+// ─── VERSE CLICK ───
 function verseClick(b,c,v,el){
   const t=state.translation;
   const txt=state.bibleData[t]?.[String(b)]?.[String(c)]?.[String(v)]||'';
@@ -534,15 +617,11 @@ function showToast(msg){
 async function doSearch(){
   const q=document.getElementById('bibleSearchInput').value.trim();
   if(!q||q.length<2){return;}
-  
-  // Ensure current translation is loaded
   if(!state.loadedTrans.has(state.translation)){
     await loadBible(state.translation);
   }
-  
   const bd=state.bibleData[state.translation];
   const results=[];
-  
   for(const bk of BOOKS){
     const bData=bd[String(bk.id)];
     if(!bData) continue;
@@ -557,7 +636,6 @@ async function doSearch(){
     }
     if(results.length>=200) break;
   }
-  
   state.bibleMode='search';
   let html='<div class="search-count">🔍 "'+q+'" 검색 결과: '+results.length+'개'+
     (results.length>=200?' (최대 200개)':'')+'</div><div class="search-results">';
@@ -580,7 +658,6 @@ function goToVerse(b,c,v){
   state.book=b; state.chapter=c; state.verse=v;
   document.getElementById('bibleSearchInput').value='';
   renderChapter();
-  // Scroll top
   document.getElementById('bibleContent').scrollIntoView({block:'start',behavior:'smooth'});
 }
 
@@ -606,15 +683,12 @@ function changeChapter(dir){
 function openModal(id){document.getElementById(id).classList.add('open')}
 function closeModal(id){document.getElementById(id).classList.remove('open')}
 
-function renderBookModal(){
-  renderBookModalContent('');
-}
+function renderBookModal(){renderBookModalContent('')}
 function filterBookModal(q){renderBookModalContent(q)}
 function renderBookModalContent(q){
   const body=document.getElementById('bookModalBody');
   let html='';
   const ot=BOOKS.slice(0,OT_END), nt=BOOKS.slice(OT_END);
-  
   function renderSection(title,arr){
     const filtered=q?arr.filter(b=>b.kor.includes(q)||b.eng.toLowerCase().includes(q.toLowerCase())):arr;
     if(!filtered.length) return;
@@ -665,7 +739,7 @@ function renderHymnList(filter){
   const entries=Object.entries(HYMN_TITLES);
   const filtered=filter?entries.filter(([n,t])=>
     String(n).includes(filter)||t.includes(filter)):entries;
-  
+
   let html='';
   if(!filtered.length){
     html='<div class="no-results">검색 결과가 없습니다</div>';
@@ -679,6 +753,9 @@ function renderHymnList(filter){
   }
   document.getElementById('hymnContent').innerHTML=html;
   state.hymnView=null;
+
+  // Show hymn controls when back to list
+  document.getElementById('hymnControls').classList.remove('collapsed');
 }
 
 function doHymnSearch(){
@@ -690,10 +767,13 @@ function openHymn(n){
   state.hymnView=n;
   const title=HYMN_TITLES[n]||('찬송가 '+n+'장');
   document.getElementById('headerTitle').textContent='🎵 '+n+'장 '+title;
-  
+
+  // Auto-collapse hymn controls for full-screen viewing
+  document.getElementById('hymnControls').classList.add('collapsed');
+
   const pad=String(n).padStart(3,'0');
   const url='https://raw.githubusercontent.com/boonger9/church-hymns/main/hymn_'+pad+'.jpg';
-  
+
   let html='<div class="hymn-viewer">'+
     '<img src="'+url+'" alt="찬송가 '+n+'장 '+title+'" '+
     'onerror="this.src=\'\';this.alt=\'이미지를 불러올 수 없습니다\';this.style=\'padding:40px;text-align:center;display:block\'">'+
@@ -736,7 +816,7 @@ function removeBm(e,i){
   localStorage.setItem('bm',JSON.stringify(state.bookmarks));
   renderBookmarks();
 }
-// Long-press to bookmark (add touch handler)
+
 let pressTimer=null;
 document.addEventListener('touchstart',e=>{
   const v=e.target.closest('.verse');
@@ -766,13 +846,16 @@ function switchPage(id){
   document.querySelectorAll('.nav-btn[data-page]').forEach(b=>{
     b.classList.toggle('active',b.dataset.page===id);
   });
+  window.scrollTo(0,0);
   const titles={biblePage:'📖 성경',hymnPage:'🎵 찬송가',bookmarkPage:'🔖 즐겨찾기'};
   if(id==='bookmarkPage'){renderBookmarks();document.getElementById('headerTitle').textContent=titles[id];}
   else if(id==='hymnPage'){
     if(!state.hymnView) document.getElementById('headerTitle').textContent=titles[id];
+    document.getElementById('hymnControls').classList.remove('collapsed');
   } else if(id==='biblePage'){
     const book=BOOKS[state.book-1];
     document.getElementById('headerTitle').textContent='📖 '+book.kor+' '+state.chapter+'장';
+    document.getElementById('bibleControls').classList.remove('collapsed');
   }
 }
 
@@ -790,17 +873,6 @@ function toggleTheme(){
   document.getElementById('themeBtn').textContent=state.theme==='dark'?'☀️':'🌙';
 }
 
-// ─── FONT SIZE ───
-function loadFontSize(){
-  const saved=localStorage.getItem('fontSize')||'medium';
-  state.fontSize=saved;
-  const sizes={small:'15px',medium:'17px',large:'20px',xlarge:'23px'};
-  document.documentElement.style.setProperty('--font-size',sizes[saved]);
-  document.querySelectorAll('.font-btn').forEach(b=>{
-    b.classList.toggle('active',b.dataset.fs===saved);
-  });
-}
-
 // ─── WAKE LOCK ───
 let wakeLock=null;
 async function setupWakeLock(){
@@ -808,7 +880,7 @@ async function setupWakeLock(){
   try{
     wakeLock=await navigator.wakeLock.request('screen');
     document.addEventListener('visibilitychange',async()=>{
-      if(document.visibilityState==='visible' && !wakeLock){
+      if(document.visibilityState==='visible'&&!wakeLock){
         wakeLock=await navigator.wakeLock.request('screen');
       }
     });
